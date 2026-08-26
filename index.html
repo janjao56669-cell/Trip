@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เซอร์ไพรส์เดตทริป</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root{
+    --bg: #FFF6F9;
+    --card: #FFFFFF;
+    --card-border: #F4C0D1;
+    --pink: #ED93B1;
+    --pink-strong: #D4537E;
+    --pink-deep: #993556;
+    --text: #4B1528;
+    --text-dim: #993556;
+    --star: #E0A020;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FDEBF1 60%, #FBE0EB 100%);
+    font-family:'Sarabun', sans-serif;
+    color:var(--text);
+  }
+  #giftScreen{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    cursor:pointer;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FDEBF1 60%, #FBE0EB 100%);
+    transition: opacity .35s ease, transform .35s ease;
+    z-index:10;
+  }
+  #giftScreen.hidden{opacity:0;transform:scale(1.05);pointer-events:none;}
+  #giftScreen .box-wrap{transition: transform .15s ease;}
+  #giftScreen:active .box-wrap{transform:scale(0.94);}
+  #giftScreen p.hint{font-size:14px;color:var(--text-dim);margin:0;}
+  #giftScreen p.eyebrow{
+    font-size:12px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--pink-strong);margin:0;font-weight:500;
+  }
+  .wrap{width:100%;max-width:420px;margin:0 auto;padding:32px 16px 64px;display:none;}
+  .wrap.visible{display:block;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:24px 20px;
+    min-height:220px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    box-shadow: 0 8px 24px rgba(212,83,126,0.08);
+  }
+  .center{text-align:center;}
+  button.primary{
+    background:var(--pink-strong);
+    color:#FFFFFF;
+    border:none;
+    border-radius:999px;
+    padding:14px 36px;
+    font-size:16px;
+    font-weight:700;
+    font-family:inherit;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  button.primary:hover{background:var(--pink-deep);}
+  button.primary:active{transform:scale(0.97);}
+  .tag{font-size:12px;color:var(--text-dim);margin:0 0 4px;letter-spacing:.5px;}
+  .loc{font-size:19px;font-weight:700;margin:0 0 20px;color:var(--text);}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  button.opt{
+    display:flex;align-items:center;gap:12px;
+    background:#FFF9FB;
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:14px 16px;
+    font-family:inherit;
+    font-size:15px;
+    color:var(--text);
+    text-align:left;
+    cursor:pointer;
+    width:100%;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  button.opt:hover{border-color:var(--pink-strong);background:#FDECF2;}
+  button.opt i.ic{font-size:19px;color:var(--pink-strong);flex-shrink:0;}
+  button.opt span.label{flex:1;}
+  button.opt span.star{color:var(--star);font-size:16px;flex-shrink:0;line-height:1;}
+  .result-box{
+    background:#FDECF2;
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:18px 18px;
+    margin-bottom:22px;
+  }
+  .result-box p{margin:0;font-size:16px;line-height:1.7;font-weight:500;color:var(--text);}
+  .stepper{display:flex;justify-content:center;gap:6px;margin-top:22px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--card-border);}
+  .dot.active{background:var(--pink-strong);}
+  .done-icon{font-size:36px;color:var(--pink-strong);}
+  .done-photo{
+    width:180px;
+    border-radius:16px;
+    border:4px solid #FFFFFF;
+    box-shadow:0 12px 30px rgba(212,83,126,0.28);
+    transform:rotate(-4deg);
+    margin:0 auto 18px;
+    display:block;
+  }
+  .done-title{font-size:20px;font-weight:700;margin:14px 0 4px;color:var(--text);}
+  .done-sub{font-size:14px;color:var(--text-dim);margin:0 0 24px;}
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--card-border);
+    color:var(--text-dim);
+    border-radius:999px;
+    padding:10px 22px;
+    font-size:14px;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--pink-strong);color:var(--pink-strong);}
+  footer{text-align:center;margin-top:20px;font-size:12px;color:var(--text-dim);opacity:.8;}
+</style>
+</head>
+<body>
+
+<div id="giftScreen">
+  <div class="box-wrap" id="giftBox">
+    <svg width="190" height="190" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="24" width="36" height="24" rx="2" fill="#F4C0D1" stroke="#D4537E" stroke-width="1.5"/>
+      <rect x="8" y="18" width="40" height="9" rx="2" fill="#ED93B1" stroke="#D4537E" stroke-width="1.5"/>
+      <rect x="25" y="18" width="6" height="30" fill="#D4537E"/>
+      <path d="M28 18 C 18 18, 16 6, 24 6 C 30 6, 28 14, 28 18 Z" fill="#F4C0D1" stroke="#D4537E" stroke-width="1.5"/>
+      <path d="M28 18 C 38 18, 40 6, 32 6 C 26 6, 28 14, 28 18 Z" fill="#F4C0D1" stroke="#D4537E" stroke-width="1.5"/>
+    </svg>
+  </div>
+  <p class="eyebrow">มีเซอร์ไพรส์รออยู่</p>
+  <p class="hint">แตะกล่องเพื่อเปิด</p>
+</div>
+
+<div class="wrap" id="mainWrap">
+  <header style="text-align:center;margin-bottom:28px;">
+    <p class="eyebrow" style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--pink-strong);margin:0 0 8px;font-weight:500;">เดตทริปวันนี้</p>
+    <h1 style="font-size:22px;font-weight:700;margin:0;line-height:1.4;color:var(--text);">ตามเส้นทางไปทีละจุด</h1>
+  </header>
+  <div class="card" id="app"></div>
+  <footer>เลือกวิธีเดินทางในแต่ละช่วง ★ = แนะนำ</footer>
+</div>
+
+<script>
+const steps = [
+  {
+    loc: "โกกิเนมเซ (สามย่าน ซอยจุฬา 11)",
+    options: [
+      { icon: "ti-walk", label: "เดิน", result: "เดิน ~450 ม. ไปสถานีถัดไป (5-7 นาที)", rec: true },
+      { icon: "ti-car", label: "รถยนต์ / Grab", result: "นั่ง Grab ไปสถานีถัดไป (~5 นาที)" }
+    ]
+  },
+  {
+    loc: "MRT สามย่าน",
+    options: [
+      { icon: "ti-train", label: "รถไฟ", result: "นั่ง MRT สามย่าน → สีลม (1 สถานี, ~2 นาที) แล้วเดินข้าม Skywalk ไป BTS ศาลาแดง", rec: true },
+      { icon: "ti-car", label: "รถยนต์ / Grab", result: "นั่ง Grab ตรงไป BTS ศาลาแดง (รถติดช่วงเย็นอาจช้ากว่า)" }
+    ]
+  },
+  {
+    loc: "BTS ศาลาแดง",
+    options: [
+      { icon: "ti-train", label: "รถไฟ", result: "นั่ง BTS ศาลาแดง → สะพานตากสิน (3 สถานี, ~7 นาที)", rec: true },
+      { icon: "ti-car", label: "รถยนต์ / Grab", result: "นั่ง Grab ไปท่าเรือ (รถติดสีลม-สาทรช่วงเย็น)" }
+    ]
+  },
+  {
+    loc: "BTS สะพานตากสิน (ทางออก 2)",
+    options: [
+      { icon: "ti-walk", label: "เดิน", result: "เดิน ~100 ม. ไปท่าเรือ", rec: true }
+    ]
+  },
+  {
+    loc: "ท่าเรือสาทร",
+    options: [
+      { icon: "ti-ship", label: "เรือ Shuttle ฟรี", result: "ล่องเรือฟรีข้ามฟากแม่น้ำ (~10-15 นาที) ให้บริการ 16:00-23:30 น.", rec: true },
+      { icon: "ti-anchor", label: "เรือท่องเที่ยว", result: "เรือ Chao Phraya Tourist Boat มีค่าโดยสาร ให้บริการเฉพาะ 16:00-19:00 น." },
+      { icon: "ti-car", label: "รถยนต์ / Grab", result: "Grab/taxi ทางถนน รถติดเจริญกรุงช่วงหัวค่ำ ~20-45 นาที" },
+      { icon: "ti-bus", label: "รถเมล์", result: "รถเมล์สาย 1, 4, 15, 17, 22, 75 ผ่านจุดหมาย" }
+    ]
+  }
+];
+let state = { phase: "choose", stepIdx: 0, lastResult: "" };
+const app = document.getElementById("app");
+
+document.getElementById("giftScreen").addEventListener("click", () => {
+  document.getElementById("giftScreen").classList.add("hidden");
+  document.getElementById("mainWrap").classList.add("visible");
+  state = { phase: "choose", stepIdx: 0, lastResult: "" };
+  render();
+});
+
+function stepperDots(){
+  let html = '<div class="stepper">';
+  for(let i=0;i<steps.length;i++){
+    html += <div class="dot ${i<=state.stepIdx ? 'active':''}"></div>;
+  }
+  html += '</div>';
+  return html;
+}
+
+function render() {
+  app.innerHTML = "";
+  if (state.phase === "choose") {
+    const step = steps[state.stepIdx];
+    let html = <p class="tag center">อยู่ที่</p><p class="loc center">${step.loc}</p><div class="options">;
+    step.options.forEach((opt, i) => {
+      html += `<button data-i="${i}" class="opt">
+        <i class="ti ${opt.icon} ic" aria-hidden="true"></i>
+        <span class="label">${opt.label}</span>
+        ${opt.rec ? <span class="star" title="แนะนำ" aria-label="แนะนำ">★</span> : ""}
+      </button>`;
+    });
+    html += </div>${stepperDots()};
+    app.innerHTML = html;
+    document.querySelectorAll(".opt").forEach(btn => {
+      btn.onclick = () => {
+        const opt = step.options[parseInt(btn.dataset.i)];
+        state.lastResult = opt.result;
+        state.phase = "result";
+        render();
+      };
+    });
+    return;
+  }
+  if (state.phase === "result") {
+    const isLast = state.stepIdx === steps.length - 1;
+    app.innerHTML = `
+      <div class="center">
+        <div class="result-box"><p>${state.lastResult}</p></div>
+        <button class="primary" id="nextBtn">${isLast ? "ถึงจุดหมาย" : "ถัดไป"}</button>
+        ${stepperDots()}
+      </div>`;
+    document.getElementById("nextBtn").onclick = () => {
+      if (isLast) { state.phase = "done"; }
+      else { state.stepIdx += 1; state.phase = "choose"; }
+      render();
+    };
+    return;
+  }
+  if (state.phase === "done") {
+    app.innerHTML = `
+      <div class="center">
+        <img class="done-photo" src="couple.jpg" alt="รูปคู่รักกับแมวสองตัว" />
+        <p class="done-title">ถึงจุดหมายแล้ว</p>
+        <p class="done-sub">เซอร์ไพรส์!</p>
+        <button class="ghost" id="restartBtn">เริ่มใหม่</button>
+      </div>`;
+    document.getElementById("restartBtn").onclick = () => {
+      document.getElementById("mainWrap").classList.remove("visible");
+      document.getElementById("giftScreen").classList.remove("hidden");
+    };
+    return;
+  }
+}
+render();
+</script>
+</body>
+</html>
