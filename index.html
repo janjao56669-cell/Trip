@@ -212,7 +212,7 @@ document.getElementById("giftScreen").addEventListener("click", () => {
 function stepperDots(){
   let html = '<div class="stepper">';
   for(let i=0;i<steps.length;i++){
-    html += <div class="dot ${i<=state.stepIdx ? 'active':''}"></div>;
+    html += `<div class="dot ${i<=state.stepIdx ? 'active':''}"></div>`;
   }
   html += '</div>';
   return html;
@@ -222,15 +222,15 @@ function render() {
   app.innerHTML = "";
   if (state.phase === "choose") {
     const step = steps[state.stepIdx];
-    let html = <p class="tag center">อยู่ที่</p><p class="loc center">${step.loc}</p><div class="options">;
+    let html = `<p class="tag center">อยู่ที่</p><p class="loc center">${step.loc}</p><div class="options">`;
     step.options.forEach((opt, i) => {
       html += `<button data-i="${i}" class="opt">
         <i class="ti ${opt.icon} ic" aria-hidden="true"></i>
         <span class="label">${opt.label}</span>
-        ${opt.rec ? <span class="star" title="แนะนำ" aria-label="แนะนำ">★</span> : ""}
+        ${opt.rec ? `<span class="star" title="แนะนำ" aria-label="แนะนำ">★</span>` : ""}
       </button>`;
     });
-    html += </div>${stepperDots()};
+    html += `</div>${stepperDots()}`;
     app.innerHTML = html;
     document.querySelectorAll(".opt").forEach(btn => {
       btn.onclick = () => {
