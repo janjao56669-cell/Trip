@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ทดสอบส่งข้อความ</title>
+<style>
+  :root { --green:#1B4332; --cream:#FBF6EA; --line:#DCD0AE; --ink:#26302B; --soft:#5C6B63; --brass:#B8922F; --red:#A13E3E; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Noto Sans Thai','Sarabun',system-ui,sans-serif; background:#EDE6D2; color:var(--ink); }
+  .wrap { max-width:480px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; margin:8px 0 4px; color:var(--green); }
+  .warn { background:#FFF4D6; border:1px solid var(--brass); border-radius:10px; padding:10px 12px; font-size:13.5px; margin:10px 0 16px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; }
+  label { display:block; font-size:13px; font-weight:700; color:var(--soft); margin:10px 0 6px; }
+  label:first-child { margin-top:0; }
+  select, input[type=text], textarea { width:100%; padding:12px; font-size:16px; font-family:inherit; border:1px solid var(--line); border-radius:10px; background:#fff; }
+  textarea { resize:vertical; min-height:110px; }
+  .count { text-align:right; font-size:12px; color:var(--soft); margin-top:4px; }
+  button { width:100%; padding:15px; font-size:16px; font-weight:700; font-family:inherit; border:none; border-radius:12px; cursor:pointer; margin-top:12px; }
+  .primary { background:var(--green); color:#fff; }
+  .secondary { background:#E7E0C8; color:var(--ink); }
+  button:disabled { opacity:.5; cursor:default; }
+  .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+  #log { font-size:13.5px; line-height:1.6; }
+  #log div { padding:8px 10px; border-radius:8px; margin-bottom:6px; background:#F4EEDC; }
+  #log .ok { background:#DDF0E3; color:#14532D; }
+  #log .bad { background:#F8DEDE; color:#7F1D1D; }
+  #log small { display:block; color:var(--soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧪 ทดสอบส่งข้อความเข้า Telegram</h1>
+  <div class="warn">หน้านี้ใช้ทดสอบระบบหลังบ้านเท่านั้น ไม่ใช่ตัวแอปจริง และไม่เกี่ยวกับข้อมูลบัญชีรับ-จ่าย ทดสอบเสร็จแล้วลบไฟล์นี้ออกจาก GitHub ได้</div>
+
+  <div class="card">
+    <button class="secondary" id="checkBtn" style="margin-top:0">1) ตรวจว่าระบบหลังบ้านพร้อมไหม</button>
+  </div>
+
+  <div class="card">
+    <label for="type">ประเภท</label>
+    <select id="type">
+      <option>🧪 ทดสอบ</option>
+      <option>💡 อยากได้ระบบเพิ่ม</option>
+      <option>🐞 พบปัญหา</option>
+      <option>💬 อื่นๆ</option>
+    </select>
+    <label for="name">ชื่อผู้ส่ง (ไม่ใส่ก็ได้)</label>
+    <input type="text" id="name" maxlength="40" placeholder="ชื่อเล่นหรือชื่ออะไรก็ได้" autocomplete="off">
+    <label for="text">ข้อความ</label>
+    <textarea id="text" maxlength="1000" placeholder="พิมพ์ข้อความทดสอบ เช่น ทดสอบระบบส่งข้อความ"></textarea>
+    <div class="count"><span id="cnt">0</span> / 1000</div>
+    <div class="hp" aria-hidden="true"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+    <button class="primary" id="sendBtn">2) ส่งข้อความทดสอบ</button>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:700;margin-bottom:8px;">ผลลัพธ์</div>
+    <div id="log"><div>ยังไม่ได้ทดสอบ</div></div>
+  </div>
+</div>
+
+<script>
+const API = 'https://passbook-api-iota.vercel.app/api/feedback';
+const $ = id => document.getElementById(id);
+
+function platform() {
+  const u = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/i.test(u)) return 'ios';
+  if (/Android/i.test(u)) return 'android';
+  if (/Windows|Macintosh|Linux|CrOS/i.test(u)) return 'desktop';
+  return 'other';
+}
+function log(msg, cls, detail) {
+  const box = $('log');
+  if (box.firstElementChild && box.firstElementChild.dataset.placeholder !== 'no' && box.children.length === 1 && !box.firstElementChild.dataset.real) box.innerHTML = '';
+  const d = document.createElement('div');
+  d.dataset.real = '1';
+  if (cls) d.className = cls;
+  const t = new Date().toLocaleTimeString('th-TH');
+  d.innerHTML = '<b></b><small></small>';
+  d.firstChild.textContent = msg;
+  d.lastChild.textContent = t + (detail ? ' • ' + detail : '');
+  box.insertBefore(d, box.firstChild);
+}
+async function call(opts) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const r = await fetch(API, { ...opts, signal: ctl.signal });
+    let j = {}; try { j = await r.json(); } catch (e) {}
+    return { status: r.status, json: j };
+  } finally { clearTimeout(timer); }
+}
+
+$('text').addEventListener('input', () => { $('cnt').textContent = $('text').value.length; });
+
+$('checkBtn').onclick = async () => {
+  $('checkBtn').disabled = true;
+  try {
+    const { status, json } = await call({ method: 'GET' });
+    if (status === 200 && json.configured) log('✅ ระบบหลังบ้านพร้อมใช้งาน', 'ok', 'ตั้งค่าโทเคนและ chat id แล้ว');
+    else if (status === 200) log('⚠️ ฟังก์ชันทำงาน แต่ยังไม่ได้ตั้งค่าโทเคน/chat id ใน Vercel', 'bad', 'ไปใส่ TELEGRAM_BOT_TOKEN และ TELEGRAM_CHAT_ID แล้ว Redeploy');
+    else log('❌ ตรวจไม่ผ่าน (รหัส ' + status + ')', 'bad', JSON.stringify(json));
+  } catch (e) {
+    log('❌ ติดต่อระบบหลังบ้านไม่ได้', 'bad', 'ตรวจอินเทอร์เน็ต หรือยังไม่ได้ Deploy ไฟล์ api/feedback.js');
+  }
+  $('checkBtn').disabled = false;
+};
+
+$('sendBtn').onclick = async () => {
+  const text = $('text').value.trim();
+  if (text.length < 3) { log('พิมพ์ข้อความก่อนนะ (อย่างน้อย 3 ตัวอักษร)', 'bad'); return; }
+  $('sendBtn').disabled = true; $('sendBtn').textContent = 'กำลังส่ง...';
+  try {
+    const { status, json } = await call({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: $('type').value, name: $('name').value, text,
+        platform: platform(), appVersion: 'TEST', website: $('website').value
+      })
+    });
+    if (status === 200 && json.ok) { log('✅ ส่งแล้ว! ลองดูใน Telegram ว่าข้อความเด้งเข้ามาไหม', 'ok'); $('text').value = ''; $('cnt').textContent = '0'; }
+    else if (status === 429) log('⏳ ส่งบ่อยเกินไป รอสัก 10 นาทีแล้วลองใหม่', 'bad');
+    else log('❌ ส่งไม่สำเร็จ (รหัส ' + status + ')', 'bad', json.hint || json.error || '');
+  } catch (e) {
+    log('❌ ส่งไม่สำเร็จ: ติดต่อระบบหลังบ้านไม่ได้', 'bad', e.name === 'AbortError' ? 'หมดเวลา (15 วินาที)' : 'ตรวจอินเทอร์เน็ต');
+  }
+  $('sendBtn').disabled = false; $('sendBtn').textContent = '2) ส่งข้อความทดสอบ';
+};
+</script>
+</body>
+</html>
